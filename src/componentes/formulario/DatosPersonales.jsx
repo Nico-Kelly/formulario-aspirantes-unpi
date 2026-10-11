@@ -54,6 +54,19 @@ export function DatosPersonales({ user, onChange, required }) {
           />
         </div>
 
+        {/* Fecha de Nacimiento */}
+        <div className="col-md-6 mb-3">
+          <label className="form-label">Fecha de nacimiento *</label>
+          <input
+            type="date"
+            className="form-control"
+            name="fechaNacimiento"
+            value={user?.fechaNacimiento || ""}
+            onChange={onChange}
+            required
+          />
+        </div>
+
         {/* Teléfono */}
         <div className="col-md-6 mb-3">
           <label className="form-label">Teléfono *</label>
@@ -95,33 +108,26 @@ export function DatosPersonales({ user, onChange, required }) {
           />
         </div>
 
-        {/* Residencia + Checkbox en la misma fila en pantallas medianas, apilados en mobile */}
-        <div className="col-12">
-          <div className="row align-items-end">
-            {/* Residencia del usuario */}
-            <div className="col-12 col-md-6 mb-3">
-              <Residencia user={user} onChange={onChange} required />
-            </div>
+        {/* Residencia del usuario */}
+        <Residencia user={user} onChange={onChange} required />
 
-            {/* Experiencia en docencia universitaria */}
-            <div className="col-12 col-md-6 mb-3 d-flex justify-content-center justify-content-md-start">
-              <div className="form-check-responsive d-flex align-items-center gap-2">
-                <input
-                  className="form-check-input mt-0 flex-shrink-0"
-                  type="checkbox"
-                  id="flexCheckDefault"
-                  name="experienciaDocencia"
-                  checked={Boolean(user?.experienciaDocencia)}
-                  onChange={onChange}
-                />
-                <label
-                  className="form-check-label mb-0"
-                  htmlFor="flexCheckDefault"
-                >
-                  Poseo experiencia como Docente universitario
-                </label>
-              </div>
-            </div>
+        {/* Experiencia en docencia universitaria */}
+        <div className="col-12 mb-3 mt-2">
+          <div className="form-check d-flex align-items-center gap-2">
+            <input
+              className="form-check-input mt-0"
+              type="checkbox"
+              id="flexCheckDefault"
+              name="experienciaDocencia"
+              checked={Boolean(user?.experienciaDocencia)}
+              onChange={onChange}
+            />
+            <label
+              className="form-check-label mb-0"
+              htmlFor="flexCheckDefault"
+            >
+              Poseo experiencia como Docente universitario
+            </label>
           </div>
         </div>
       </div>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Dropdown, Form, Container, Row, Col } from "react-bootstrap";
+import { Dropdown, Form } from "react-bootstrap";
 
 export function Residencia({ user, onChange }) {
   //Esto es para manejar la selección de municipio y localidad, así como la búsqueda dentro de ellos.
@@ -62,10 +62,11 @@ export function Residencia({ user, onChange }) {
     user?.residencia === "CABA" || (user?.residencia === "PBA" && (localidad || user?.localidad));
 
   return (
-    <Row className="g-3">
-      <Col md={12}>
-        <Form.Label>Residencia *</Form.Label>
-        <Form.Select
+    <>
+      <div className="col-md-6 mb-3">
+        <label className="form-label">Residencia *</label>
+        <select
+          className="form-select"
           name="residencia"
           value={user?.residencia || ""}
           onChange={(e) => {
@@ -86,127 +87,104 @@ export function Residencia({ user, onChange }) {
           <option value="">Seleccionar...</option>
           <option value="CABA">C.A.B.A</option>
           <option value="PBA">Provincia de Buenos Aires</option>
-        </Form.Select>
-      </Col>
+        </select>
+      </div>
 
       {user?.residencia === "PBA" && (
-        <Col md={12}>
-          <Form.Label>Municipio *</Form.Label>
-          <Dropdown>
-            <Dropdown.Toggle
-              variant="outline-secondary"
-              className="w-100 text-start"
-            >
-              {user?.municipio || (municipio ? municipio.nombre : "Seleccionar municipio...")}
-            </Dropdown.Toggle>
+        <>
+          <div className="col-md-6 mb-3">
+            <label className="form-label">Municipio *</label>
+            <Dropdown>
+              <Dropdown.Toggle
+                variant="outline-secondary"
+                className="w-100 text-start d-flex justify-content-between align-items-center"
+              >
+                <span>{user?.municipio || (municipio ? municipio.nombre : "Seleccionar municipio...")}</span>
+              </Dropdown.Toggle>
 
-            <Dropdown.Menu
-              className="w-100 p-2"
-              style={{ maxHeight: "250px", overflowY: "auto" }}
-            >
-              <Form.Control
-                type="text"
-                placeholder="Buscar..."
-                className="mb-2"
-                value={busquedaMunicipio}
-                onChange={(e) => setBusquedaMunicipio(e.target.value)}
-                onClick={(e) => e.stopPropagation()} //Evita que el click cierre el menú.
-              />
-              {municipiosFiltrados.length === 0 && (
-                <Dropdown.ItemText>Sin resultados</Dropdown.ItemText>
-              )}
-              {municipiosFiltrados.map((m) => (
-                <Dropdown.Item
-                  key={m.id}
-                  onClick={() => {
-                    setMunicipio(m);
-                    setLocalidad(null);
-                    setBusquedaMunicipio("");
-                    if (onChange) {
-                      onChange({ target: { name: "municipio", value: m.nombre } });
-                      onChange({ target: { name: "localidad", value: "" } });
-                    }
-                  }}
-                >
-                  {m.nombre}
-                </Dropdown.Item>
-              ))}
-            </Dropdown.Menu>
-          </Dropdown>
-        </Col>
+              <Dropdown.Menu
+                className="w-100 p-2"
+                style={{ maxHeight: "250px", overflowY: "auto" }}
+              >
+                <Form.Control
+                  type="text"
+                  placeholder="Buscar..."
+                  className="mb-2"
+                  value={busquedaMunicipio}
+                  onChange={(e) => setBusquedaMunicipio(e.target.value)}
+                  onClick={(e) => e.stopPropagation()} //Evita que el click cierre el menú.
+                />
+                {municipiosFiltrados.length === 0 && (
+                  <Dropdown.ItemText>Sin resultados</Dropdown.ItemText>
+                )}
+                {municipiosFiltrados.map((m) => (
+                  <Dropdown.Item
+                    key={m.id}
+                    onClick={() => {
+                      setMunicipio(m);
+                      setLocalidad(null);
+                      setBusquedaMunicipio("");
+                      if (onChange) {
+                        onChange({ target: { name: "municipio", value: m.nombre } });
+                        onChange({ target: { name: "localidad", value: "" } });
+                      }
+                    }}
+                  >
+                    {m.nombre}
+                  </Dropdown.Item>
+                ))}
+              </Dropdown.Menu>
+            </Dropdown>
+          </div>
+
+          <div className="col-md-6 mb-3">
+            <label className="form-label">Localidad *</label>
+            <Dropdown>
+              <Dropdown.Toggle
+                variant="outline-secondary"
+                className="w-100 text-start d-flex justify-content-between align-items-center"
+                disabled={!municipio}
+              >
+                <span className={user?.localidad ? "" : "text-muted"}>
+                  {user?.localidad || (municipio ? "Seleccionar localidad..." : "Seleccione municipio primero...")}
+                </span>
+              </Dropdown.Toggle>
+
+              <Dropdown.Menu
+                className="w-100 p-2"
+                style={{ maxHeight: "250px", overflowY: "auto" }}
+              >
+                <Form.Control
+                  type="text"
+                  placeholder="Buscar..."
+                  className="mb-2"
+                  value={busquedaLocalidad}
+                  onChange={(e) => setBusquedaLocalidad(e.target.value)}
+                  onClick={(e) => e.stopPropagation()}
+                />
+                {localidadesFiltradas.length === 0 && (
+                  <Dropdown.ItemText>Sin resultados</Dropdown.ItemText>
+                )}
+                {localidadesFiltradas.map((l) => (
+                  <Dropdown.Item
+                    key={l.id}
+                    onClick={() => {
+                      setLocalidad(l);
+                      setBusquedaLocalidad("");
+                      if (onChange) {
+                        onChange({ target: { name: "localidad", value: l.nombre } });
+                      }
+                    }}
+                  >
+                    {l.nombre}
+                  </Dropdown.Item>
+                ))}
+              </Dropdown.Menu>
+            </Dropdown>
+          </div>
+        </>
       )}
-
-      {user?.residencia === "PBA" && municipio && (
-        <Col md={12}>
-          <Form.Label>Localidad *</Form.Label>
-          <Dropdown>
-            <Dropdown.Toggle
-              variant="outline-secondary"
-              className="w-100 text-start"
-            >
-              {user?.localidad || (localidad ? localidad.nombre : "Seleccionar localidad...")}
-            </Dropdown.Toggle>
-
-            <Dropdown.Menu
-              className="w-100 p-2"
-              style={{ maxHeight: "250px", overflowY: "auto" }}
-            >
-              <Form.Control
-                type="text"
-                placeholder="Buscar..."
-                className="mb-2"
-                value={busquedaLocalidad}
-                onChange={(e) => setBusquedaLocalidad(e.target.value)}
-                onClick={(e) => e.stopPropagation()}
-              />
-              {localidadesFiltradas.length === 0 && (
-                <Dropdown.ItemText>Sin resultados</Dropdown.ItemText>
-              )}
-              {localidadesFiltradas.map((l) => (
-                <Dropdown.Item
-                  key={l.id}
-                  onClick={() => {
-                    setLocalidad(l);
-                    setBusquedaLocalidad("");
-                    if (onChange) {
-                      onChange({ target: { name: "localidad", value: l.nombre } });
-                    }
-                  }}
-                >
-                  {l.nombre}
-                </Dropdown.Item>
-              ))}
-            </Dropdown.Menu>
-          </Dropdown>
-        </Col>
-      )}
-      {/* Calle y Altura 
-        {mostrarDireccion && (
-          <>
-            <Col md={12}>
-              <Form.Label>Calle</Form.Label>
-              <Form.Control
-                type="text"
-                name="calle"
-                placeholder="Ej: Av. Rivadavia"
-                value={user?.calle || ""}
-                onChange={onChange}
-              />
-            </Col>
-
-            <Col md={12}>
-              <Form.Label>Altura</Form.Label>
-              <Form.Control
-                type="number"
-                name="altura"
-                placeholder="Ej: 1234"
-                value={user?.altura || ""}
-                onChange={onChange}
-              />
-            </Col>
-          </>
-        )}*/}
-    </Row>
+    </>
   );
 }
 

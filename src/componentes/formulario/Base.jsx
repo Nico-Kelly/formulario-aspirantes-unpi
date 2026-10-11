@@ -11,6 +11,7 @@ export function BaseForm() {
         nombre: '',
         apellido: '',
         dni: '',
+        fechaNacimiento: "",
         telefono: '',
         correo: '',
         residencia: '',
@@ -35,7 +36,34 @@ export function BaseForm() {
             alert("Por favor revise los siguientes campos obligatorios:\n\n• " + Object.values(errores).join("\n• "));
             return;
         }
-        console.log("Datos enviados:", user);
+
+        const idSituacion = user.experienciaDocencia ? 1 : 3;
+        let tags = user.especialidades.map(e => e.value);
+        if (user.experienciaDocencia) {
+            tags.push(10)
+        }
+
+        const payload = {
+            token: localStorage.getItem("token"),
+            nombre: user.nombre,
+            apellido: user.apellido,
+            dni: user.dni,
+            fechaNacimiento: user.fechaNacimiento,
+            telefono: user.telefono,
+            correo: user.correo,
+            residencia: user.residencia,
+            municipio: user.municipio,
+            localidad: user.localidad,
+            calle: user.calle,
+            altura: user.altura,
+            formacion: user.formacion,
+            idSituacion: idSituacion,
+            otrasFormaciones: user.otrasFormaciones,
+            linkedin: user.linkedin,
+            tags: tags
+        }
+
+        console.log("Datos enviados:", payload);
         alert("¡Formulario enviado con éxito!");
     };
     
