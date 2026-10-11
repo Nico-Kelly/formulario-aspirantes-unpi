@@ -40,6 +40,9 @@ export function campoCompletado(nombreDelCampo, valor) {
     case "experienciaDocencia":
       return typeof valor === "boolean";
 
+    case "fechaNacimiento":
+      return typeof valor === "string" && valor.trim().length > 0;
+
     case "cv":
       //Esta bien si hay un archivo cargado (osea, no es null ni vacio).
       return valor !== null && valor !== undefined && valor !== "";
@@ -80,6 +83,10 @@ export function validarFormulario(user) {
   }
   if (!campoCompletado("cv", user.cv)) {
     errores.cv = "Debe adjuntar su Curriculum Vitae en formato PDF.";
+  }
+
+  if (!campoCompletado("fechaNacimiento", user.fechaNacimiento)) {
+    errores.fechaNacimiento = "La fecha de nacimiento es obligatoria.";
   }
 
   return {

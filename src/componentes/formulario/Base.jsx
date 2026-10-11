@@ -29,44 +29,63 @@ export function BaseForm() {
 
     // aca vamos a crear la funcion que se va a ejecutar cuando se envie el formulario, esta funcion va a recibir el evento 'e' como parametro, 
     // evita que la pagina se recargue al enviar el formulario y valida los datos con Validar.js
-    const handleSumbitForm = e => {
-        e.preventDefault();
-        const { valido, errores } = validarFormulario(user);
-        if (!valido) {
-            alert("Por favor revise los siguientes campos obligatorios:\n\n• " + Object.values(errores).join("\n• "));
-            return;
-        }
+    const handleSumbitForm = async (e) => {
+    e.preventDefault();
+    const { valido, errores } = validarFormulario(user);
+    if (!valido) {
+        alert("Por favor revise los siguientes campos obligatorios:\n\n• " + Object.values(errores).join("\n• "));
+        return;
+    }
 
-        const idSituacion = user.experienciaDocencia ? 1 : 3;
-        let tags = user.especialidades.map(e => e.value);
-        if (user.experienciaDocencia) {
-            tags.push(10)
-        }
+    const idSituacion = user.experienciaDocencia ? 1 : 3;
+    const tags = user.especialidades.map(esp => Number(esp.value));
+    if (user.experienciaDocencia) tags.push(10);
 
-        const payload = {
-            token: localStorage.getItem("token"),
-            nombre: user.nombre,
-            apellido: user.apellido,
-            dni: user.dni,
-            fechaNacimiento: user.fechaNacimiento,
-            telefono: user.telefono,
-            correo: user.correo,
-            residencia: user.residencia,
-            municipio: user.municipio,
-            localidad: user.localidad,
-            calle: user.calle,
-            altura: user.altura,
-            formacion: user.formacion,
-            idSituacion: idSituacion,
-            otrasFormaciones: user.otrasFormaciones,
-            linkedin: user.linkedin,
-            tags: tags
-        }
+    //El token viene del link 
+    const token = new URLSearchParams(window.location.search).get("token");
 
-        console.log("Datos enviados:", payload);
-        alert("¡Formulario enviado con éxito!");
+    const payload = {
+        token,
+        nombre: user.nombre,
+        apellido: user.apellido,
+        dni: user.dni,
+        fecha_nacimiento: user.fechaNacimiento,   
+        id_localidad: user.localidad,           
+        mail_personal: user.correo,
+        telefono_principal: user.telefono,
+        linkedin: user.linkedin,
+        nivel_titulacion: user.formacion,
+        otras_formaciones: user.otrasFormaciones,
+        id_situacion_institucional: idSituacion,
+        tags,
     };
-    
+
+    try {
+        //Datos en JSON
+        const resForm = await fetch("http://localhost:3000/api/postulantes", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+        });
+        if (!resForm.ok) throw new Error("Falló el envío de datos");
+        const { postulante_id } = await resForm.json();
+
+        //PDF
+        const formData = new FormData();
+        formData.append("cv", user.cv);           
+        const resCv = await fetch(`http://localhost:3000/api/postulantes/${postulante_id}/cv`, {
+            method: "POST",
+            body: formData,                        
+        });
+        if (!resCv.ok) throw new Error("Falló la subida del CV");
+
+        alert("¡Postulación enviada con éxito!");
+    } catch (err) {
+        console.error(err);
+        alert("Hubo un error al enviar. Intentá de nuevo.");
+    }
+};
+
     // Creo la funcion que se ejecuta cada vez que el usuario interactua con un campo (evento OnChange), 
     // donde recibe el evento "e" como parametro, extraigo de e.target las propiedades name, value, type, checked y files
     // soporta checkboxes, archivos (files), filtrado numérico para DNI y teléfono, y componentes personalizados
@@ -88,8 +107,8 @@ export function BaseForm() {
         setUser(prevUser => ({ ...prevUser, [name]: valorFinal }));
     };
 
-    // Aca es donde se renderiza los componentes del formulario, le asignamos el state 'user' y la funcion 'handleUsernameInput' a cada componente que necesite 
-    // recibir los datos
+    //Aca es donde se renderiza los componentes del formulario, le asignamos el state 'user' y la funcion 'handleUsernameInput' a cada componente que necesite 
+    //recibir los datos
     return (
         <>
             <div className="container p-2">
