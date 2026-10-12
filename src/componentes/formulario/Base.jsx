@@ -43,6 +43,10 @@ export function BaseForm() {
 
     //El token viene del link 
     const token = new URLSearchParams(window.location.search).get("token");
+    if (!token) {
+        alert("Enlace de postulación inválido: falta el token de invitación.");
+        return;
+    }
 
     const payload = {
         token,
@@ -50,7 +54,7 @@ export function BaseForm() {
         apellido: user.apellido,
         dni: user.dni,
         fecha_nacimiento: user.fechaNacimiento,   
-        id_localidad: user.localidad,           
+        id_localidad: Number(user.localidad),           
         mail_personal: user.correo,
         telefono_principal: user.telefono,
         linkedin: user.linkedin,
@@ -62,18 +66,25 @@ export function BaseForm() {
 
     try {
         //Datos en JSON
-        const resForm = await fetch("http://localhost:3000/api/postulantes", {
+        const resForm = await fetch("http://localhost:3001/api/postulantes", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload),
         });
-        if (!resForm.ok) throw new Error("Falló el envío de datos");
+        if (!resForm.ok) {
+            let detalle = "";
+            try {
+                const data = await resForm.json();
+                detalle = data.error || data.message || "";
+            } catch (_) { /* cuerpo no JSON */ }
+            throw new Error(detalle || `Falló el envío de datos (HTTP ${resForm.status})`);
+        }
         const { postulante_id } = await resForm.json();
 
         //PDF
         const formData = new FormData();
         formData.append("cv", user.cv);           
-        const resCv = await fetch(`http://localhost:3000/api/postulantes/${postulante_id}/cv`, {
+        const resCv = await fetch(`http://localhost:3001/api/postulantes/${postulante_id}/cv`, {
             method: "POST",
             body: formData,                        
         });
@@ -82,7 +93,7 @@ export function BaseForm() {
         alert("¡Postulación enviada con éxito!");
     } catch (err) {
         console.error(err);
-        alert("Hubo un error al enviar. Intentá de nuevo.");
+        alert(err.message || "Hubo un error al enviar. Intentá de nuevo.");
     }
 };
 

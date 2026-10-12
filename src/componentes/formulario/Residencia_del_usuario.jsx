@@ -11,9 +11,12 @@ export function Residencia({ user, onChange }) {
   const [localidades, setLocalidades] = useState([]); //Para almacenar la lista de localidades de la API.
   const [busquedaLocalidad, setBusquedaLocalidad] = useState(""); //Para almacenar el texto de búsqueda de la localidad y mostrarlo en el dropdown.
 
-  //Carga la lista de municipios cuando eligen PBA.
+  //Carga la lista de municipios según la residencia elegida (PBA -> municipios; CABA -> comunas).
   useEffect(() => {
-    if (user?.residencia !== "PBA") {
+    const esPBA = user?.residencia === "PBA";
+    const esCABA = user?.residencia === "CABA";
+
+    if (!esPBA && !esCABA) {
       setMunicipios([]);
       setMunicipio(null);
       return;
@@ -21,11 +24,16 @@ export function Residencia({ user, onChange }) {
 
     setMunicipio(null); //Reinicia el municipio seleccionado al cambiar la residencia.
 
-    fetch(
-      "https://apis.datos.gob.ar/georef/api/municipios?provincia=buenos%20aires&max=200&campos=id,nombre&orden=nombre",
-    )
+    fetch("http://localhost:3001/api/municipios")
       .then((res) => res.json())
-      .then((data) => setMunicipios(data.municipios || []))
+      .then((data) => {
+        const todos = data.municipios || [];
+        const esComuna = (m) => /^comuna\s*\d/i.test(m.nombre);
+        const filtrados = esCABA
+          ? todos.filter(esComuna)
+          : todos.filter((m) => !esComuna(m));
+        setMunicipios(filtrados);
+      })
       .catch((err) => console.error("Error al cargar municipios:", err));
   }, [user?.residencia]);
 
@@ -39,7 +47,7 @@ export function Residencia({ user, onChange }) {
     setLocalidad(null); //Reinicia la localidad seleccionada al cambiar el municipio.
 
     fetch(
-      `https://apis.datos.gob.ar/georef/api/localidades?municipio=${municipio.id}&max=200&campos=id,nombre&orden=nombre`,
+      `http://localhost:3001/api/localidades?id_municipio=${municipio.id}`,
     )
       .then((res) => res.json())
       .then((data) => setLocalidades(data.localidades || []))
@@ -59,7 +67,10 @@ export function Residencia({ user, onChange }) {
   //En CABA, recien cuando se elige esa opción.
   //En PBA, recién cuando ya hay localidad elegida.
   const mostrarDireccion =
-    user?.residencia === "CABA" || (user?.residencia === "PBA" && (localidad || user?.localidad));
+    user?.residencia === "CABA" || (user?.residencia === "PBA" && localidad);
+
+  // Los campos Calle y Altura se reservan para una etapa posterior (aún no en uso).
+  void mostrarDireccion;
 
   return (
     <>
@@ -70,7 +81,6 @@ export function Residencia({ user, onChange }) {
           name="residencia"
           value={user?.residencia || ""}
           onChange={(e) => {
-            const nuevaResidencia = e.target.value;
             onChange(e);
             // Limpia municipio y localidad en el usuario y estado local si cambia
             if (onChange) {
@@ -90,16 +100,22 @@ export function Residencia({ user, onChange }) {
         </select>
       </div>
 
-      {user?.residencia === "PBA" && (
+      {(user?.residencia === "PBA" || user?.residencia === "CABA") && (
         <>
           <div className="col-md-6 mb-3">
-            <label className="form-label">Municipio *</label>
+            <label className="form-label">{user?.residencia === "CABA" ? "Comuna *" : "Municipio *"}</label>
             <Dropdown>
               <Dropdown.Toggle
                 variant="outline-secondary"
                 className="w-100 text-start d-flex justify-content-between align-items-center"
               >
-                <span>{user?.municipio || (municipio ? municipio.nombre : "Seleccionar municipio...")}</span>
+                <span>
+                  {municipio
+                    ? municipio.nombre
+                    : user?.residencia === "CABA"
+                      ? "Seleccionar comuna..."
+                      : "Seleccionar municipio..."}
+                </span>
               </Dropdown.Toggle>
 
               <Dropdown.Menu
@@ -125,7 +141,7 @@ export function Residencia({ user, onChange }) {
                       setLocalidad(null);
                       setBusquedaMunicipio("");
                       if (onChange) {
-                        onChange({ target: { name: "municipio", value: m.nombre } });
+                        onChange({ target: { name: "municipio", value: m.id } });
                         onChange({ target: { name: "localidad", value: "" } });
                       }
                     }}
@@ -138,15 +154,19 @@ export function Residencia({ user, onChange }) {
           </div>
 
           <div className="col-md-6 mb-3">
-            <label className="form-label">Localidad *</label>
+            <label className="form-label">{user?.residencia === "CABA" ? "Barrio *" : "Localidad *"}</label>
             <Dropdown>
               <Dropdown.Toggle
                 variant="outline-secondary"
                 className="w-100 text-start d-flex justify-content-between align-items-center"
                 disabled={!municipio}
               >
-                <span className={user?.localidad ? "" : "text-muted"}>
-                  {user?.localidad || (municipio ? "Seleccionar localidad..." : "Seleccione municipio primero...")}
+                <span className={localidad ? "" : "text-muted"}>
+                  {localidad
+                    ? localidad.nombre
+                    : municipio
+                      ? (user?.residencia === "CABA" ? "Seleccionar barrio..." : "Seleccionar localidad...")
+                      : (user?.residencia === "CABA" ? "Seleccione comuna primero..." : "Seleccione municipio primero...")}
                 </span>
               </Dropdown.Toggle>
 
@@ -172,7 +192,7 @@ export function Residencia({ user, onChange }) {
                       setLocalidad(l);
                       setBusquedaLocalidad("");
                       if (onChange) {
-                        onChange({ target: { name: "localidad", value: l.nombre } });
+                        onChange({ target: { name: "localidad", value: l.id } });
                       }
                     }}
                   >

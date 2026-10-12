@@ -72,8 +72,10 @@ export function validarFormulario(user) {
   }
   if (!campoCompletado("residencia", user.residencia)) {
     errores.residencia = "Debe seleccionar su lugar de residencia.";
-  } else if (user.residencia === "PBA" && (!user.municipio || !user.localidad)) {
-    errores.residencia = "Para Provincia de Buenos Aires debe seleccionar municipio y localidad.";
+  } else if ((user.residencia === "PBA" || user.residencia === "CABA") && (!user.municipio || !user.localidad)) {
+    errores.residencia = user.residencia === "CABA"
+      ? "Para C.A.B.A debe seleccionar comuna y barrio."
+      : "Para Provincia de Buenos Aires debe seleccionar municipio y localidad.";
   }
   if (!campoCompletado("especialidades", user.especialidades)) {
     errores.especialidades = "Debe seleccionar al menos una especialidad.";

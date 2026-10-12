@@ -2,6 +2,29 @@ import React from "react";
 
 import { IconosPanelAdmin } from "./Iconos_panel.jsx";
 
+const formatearFecha = (valor) => {
+  if (!valor) return "—";
+  const fecha = new Date(valor);
+  if (isNaN(fecha.getTime())) return valor;
+  return fecha.toLocaleDateString("es-AR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+};
+
+const estiloEstado = (estado) => {
+  switch (estado) {
+    case "Revisado":
+      return "bg-success";
+    case "Entrevista Agendada":
+      return "bg-info text-dark";
+    case "Pendiente":
+    default:
+      return "bg-warning text-dark";
+  }
+};
+
 export function TablaAspirantes({
   aspirantes,
   busqueda,
@@ -48,16 +71,17 @@ export function TablaAspirantes({
             ) : (
               aspirantes.map((a) => (
                 <tr key={a.id}>
-                  <td className="px-4 py-3 text-secondary">{a.fecha}</td>
-                  <td className="px-4 py-3 fw-bold">{a.nombre}</td>
-                  <td className="px-4 py-3 text-secondary">{a.especialidad}</td>
-                  <td className="px-4 py-3 text-secondary">{a.nivel}</td>
+                  <td className="px-4 py-3 text-secondary">{formatearFecha(a.fecha)}</td>
+                  <td className="px-4 py-3 fw-bold">
+                    {a.apellido_y_nombre || `${a.apellido}, ${a.nombre}`}
+                  </td>
+                  <td className="px-4 py-3 text-secondary">{a.especialidad || "—"}</td>
+                  <td className="px-4 py-3 text-secondary">{a.nivel_academico || "—"}</td>
                   <td className="px-4 py-3">
                     <span
-                      className={`badge ${a.estado === "Pendiente" ? "bg-warning text-dark" : "bg-success"
-                        } border px-3 py-2 rounded-pill shadow-sm`}
+                      className={`badge ${estiloEstado(a.estado)} border px-3 py-2 rounded-pill shadow-sm`}
                     >
-                      {a.estado}
+                      {a.estado || "Pendiente"}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-center">
