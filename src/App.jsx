@@ -5,7 +5,11 @@ import { LoginUsuario } from "./componentes/PanelAdministrador/Login_usuario";
 import { PanelPrincipal } from "./componentes/PanelAdministrador/Panel_principal";
 
 function App() {
-  const [vistaActual, setVistaActual] = useState("login"); 
+  const esPostulacion = typeof window !== "undefined" && (
+    new URLSearchParams(window.location.search).has("token") ||
+    window.location.pathname.includes("postulacion")
+  );
+  const [vistaActual, setVistaActual] = useState(esPostulacion ? "formulario" : "login"); 
 
   const manejarLoginExitoso = () => {
     setVistaActual("panel");
