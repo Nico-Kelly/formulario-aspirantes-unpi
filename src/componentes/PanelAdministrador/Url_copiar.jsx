@@ -1,6 +1,7 @@
 import React, { useState } from "react";
+import { API_BASE_URL } from "../../config/api";
 
-const API_GENERAR_LINK = "http://localhost:3001/api/postulantes/generar-link";
+const API_GENERAR_LINK = `${API_BASE_URL}/api/postulantes/generar-link`;
 
 export function CopiarUrlFormulario() {
     const [abierto, setAbierto] = useState(false);

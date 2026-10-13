@@ -3,6 +3,7 @@ import { DatosPersonales } from "./DatosPersonales";
 import { FormacionAcademica } from "./Formacion_maxima";
 import { EnviarCV } from "./Enviar_cv";
 import { validarFormulario } from "../validaciones/Validar";
+import { API_BASE_URL } from "../../config/api";
 
 export function BaseForm() {
     // aca vamos a crear todas las variables que vamos a usar en el formulario, sirven para almacenar los datos que el usuario va ingresando
@@ -66,7 +67,7 @@ export function BaseForm() {
 
     try {
         //Datos en JSON
-        const resForm = await fetch("http://localhost:3001/api/postulantes", {
+        const resForm = await fetch(`${API_BASE_URL}/api/postulantes`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload),
@@ -84,7 +85,7 @@ export function BaseForm() {
         //PDF
         const formData = new FormData();
         formData.append("cv", user.cv);           
-        const resCv = await fetch(`http://localhost:3001/api/postulantes/${postulante_id}/cv`, {
+        const resCv = await fetch(`${API_BASE_URL}/api/postulantes/${postulante_id}/cv`, {
             method: "POST",
             body: formData,                        
         });

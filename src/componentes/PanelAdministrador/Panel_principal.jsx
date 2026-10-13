@@ -4,8 +4,9 @@ import { BarraFiltros } from "./Barra_filtros.jsx";
 import { ModalDetalles } from "./Modal_detalles.jsx";
 import { ModalEntrevista } from "./Modal_entrevista.jsx";
 import { TablaAspirantes } from "./Tabla_aspirantes.jsx";
+import { API_BASE_URL } from "../../config/api";
 
-const API_POSTULANTES = "http://localhost:3001/api/postulantes";
+const API_POSTULANTES = `${API_BASE_URL}/api/postulantes`;
 
 export function PanelPrincipal() {
   const [modalDetalles, setModalDetalles] = useState(false);

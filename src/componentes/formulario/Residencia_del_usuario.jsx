@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Dropdown, Form } from "react-bootstrap";
+import { API_BASE_URL } from "../../config/api";
 
 export function Residencia({ user, onChange }) {
   //Esto es para manejar la selección de municipio y localidad, así como la búsqueda dentro de ellos.
@@ -24,7 +25,7 @@ export function Residencia({ user, onChange }) {
 
     setMunicipio(null); //Reinicia el municipio seleccionado al cambiar la residencia.
 
-    fetch("http://localhost:3001/api/municipios")
+    fetch(`${API_BASE_URL}/api/municipios`)
       .then((res) => res.json())
       .then((data) => {
         const todos = data.municipios || [];
@@ -47,7 +48,7 @@ export function Residencia({ user, onChange }) {
     setLocalidad(null); //Reinicia la localidad seleccionada al cambiar el municipio.
 
     fetch(
-      `http://localhost:3001/api/localidades?id_municipio=${municipio.id}`,
+      `${API_BASE_URL}/api/localidades?id_municipio=${municipio.id}`,
     )
       .then((res) => res.json())
       .then((data) => setLocalidades(data.localidades || []))
