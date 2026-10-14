@@ -4,7 +4,7 @@ export function EncabezadoPanelAdmin({ colorPrimario = "#14589f" }) {
         <>
             {/* Encabezado del Panel */}
             <div className="d-flex justify-content-between align-items-center mb-4 bg-white p-3 rounded shadow-sm border-start border-4" style={{ borderLeftColor: colorPrimario }}>
-                <h4 className="mb-0" style={{ color: colorPrimario, fontWeight: "600" }}>Portal de Aspirantes a Cátedra</h4>
+                <h4 className="mb-0" style={{ color: colorPrimario, fontWeight: "600" }}>Portal de postulación docente UNPilar</h4>
                 <div className="d-flex align-items-center gap-2">
                     <CopiarUrlFormulario />
                     <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill={colorPrimario} viewBox="0 0 16 16">
